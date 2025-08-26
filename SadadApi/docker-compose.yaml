@@ -5,8 +5,8 @@ services:
     image: container-registry.oracle.com/database/express:latest
     container_name: sadad-db
     ports:
-      - "1521:1521"   # Oracle listener
-      - "5500:5500"   # Oracle Enterprise Manager
+      - "1521:1521"   
+      - "5500:5500"  
     environment:
-      ORACLE_PWD: admin123   # SYS, SYSTEM default password
+      ORACLE_PWD: admin123  
     restart: unless-stopped

@@ -1,14 +1,5 @@
 package com.example.SadadApi.services;
 
-import java.util.List;
+public interface InvoiceTypeService extends CrudService{
 
-import com.example.SadadApi.dtos.CodeNameDto;
-import com.example.SadadApi.dtos.CodeNameResponse;
-import com.example.SadadApi.dtos.GenericResponse;
-
-public interface InvoiceTypeService {
-    GenericResponse<CodeNameResponse> create(CodeNameDto codeNameDto);
-    GenericResponse<CodeNameResponse> update(CodeNameResponse CodeNameResponse);
-    GenericResponse<List<CodeNameResponse>> findAll();
-    GenericResponse<CodeNameResponse> findById();
 }

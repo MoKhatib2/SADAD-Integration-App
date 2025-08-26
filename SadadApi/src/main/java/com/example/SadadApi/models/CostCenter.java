@@ -2,6 +2,8 @@ package com.example.SadadApi.models;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -30,5 +32,6 @@ public class CostCenter {
     private String description;
 
     @OneToMany(mappedBy = "costCenter", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<SadadCostCenter> allocations;
 }

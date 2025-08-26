@@ -21,16 +21,7 @@ import lombok.AllArgsConstructor;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Vendor {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(unique = true)
-    private String code;
-
-    private String name;
-
+public class Vendor extends BaseEntity{
     @ManyToOne
     @JoinColumn(name = "biller_id")
     private Biller biller;

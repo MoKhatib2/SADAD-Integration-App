@@ -2,15 +2,10 @@ package com.example.SadadApi.services;
 
 import java.util.List;
 
-import com.example.SadadApi.dtos.CodeNameDto;
-import com.example.SadadApi.dtos.CodeNameResponse;
-import com.example.SadadApi.dtos.GenericResponse;
 import com.example.SadadApi.dtos.IdDto;
+import com.example.SadadApi.responses.GenericResponse;
+import com.example.SadadApi.responses.SadadCostCenterResponse;
 
-public interface CostCenterService {
-    GenericResponse<CodeNameResponse> create(CodeNameDto codeNameDto);
-    GenericResponse<CodeNameResponse> update(CodeNameResponse CodeNameResponse);
-    GenericResponse<List<CodeNameResponse>> findAll();
-    GenericResponse<CodeNameResponse> findById();
-    GenericResponse<List<CodeNameResponse>> findAllBySadadRecod(IdDto SadadRecordId);
+public interface CostCenterService extends CrudService{
+    GenericResponse<List<SadadCostCenterResponse>> findAllBySadadRecord(IdDto SadadRecordId);
 }

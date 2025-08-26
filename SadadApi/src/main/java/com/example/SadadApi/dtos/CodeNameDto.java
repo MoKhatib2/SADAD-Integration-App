@@ -1,5 +1,7 @@
 package com.example.SadadApi.dtos;
 
-public record CodeNameDto(String code, String name) {
+import jakarta.validation.constraints.NotBlank;
+
+public record CodeNameDto(@NotBlank String code, @NotBlank String name) {
 
 }

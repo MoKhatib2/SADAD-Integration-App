@@ -31,12 +31,12 @@ public class PasswordResetToken {
 
     private Instant expiryDate;
 
-    private boolean used;
+    private boolean verified;
 
-    public PasswordResetToken(User user, String token, Instant expiryDate, boolean used) {
+    public PasswordResetToken(User user, String token, Instant expiryDate, boolean verified) {
         this.user = user;
         this.token = token;
         this.expiryDate = expiryDate;
-        this.used = false;
+        this.verified = verified;
     }
 }

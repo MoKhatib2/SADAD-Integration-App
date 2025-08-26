@@ -1,8 +1,8 @@
 package com.example.SadadApi.services.impl;
 
 import java.time.Instant;
-import java.util.Optional;
 import java.util.Random;
+import java.util.Set;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -12,19 +12,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.SadadApi.config.TokenProvider;
-import com.example.SadadApi.dtos.AuthResponse;
 import com.example.SadadApi.dtos.EmailDto;
-import com.example.SadadApi.dtos.MessageResponse;
+import com.example.SadadApi.dtos.ResetPasswordDto;
 import com.example.SadadApi.dtos.SignInDto;
 import com.example.SadadApi.dtos.SignUpDto;
-import com.example.SadadApi.dtos.UserResponse;
 import com.example.SadadApi.dtos.VerificationCodeDto;
 import com.example.SadadApi.models.PasswordResetToken;
 import com.example.SadadApi.models.User;
 import com.example.SadadApi.models.User.Role;
 import com.example.SadadApi.repositories.PasswordResetTokenRepository;
 import com.example.SadadApi.repositories.UserRepository;
+import com.example.SadadApi.responses.AuthResponse;
+import com.example.SadadApi.responses.MessageResponse;
+import com.example.SadadApi.responses.UserResponse;
 import com.example.SadadApi.services.AuthService;
+import com.example.SadadApi.services.EmailService;
 
 @Service
 public class AuthServiceImpl implements AuthService{
@@ -32,17 +34,20 @@ public class AuthServiceImpl implements AuthService{
     final private TokenProvider tokenProvider;
     final private AuthenticationManager authenticationManager;
     final private PasswordResetTokenRepository passwordResetTokenRepository;
+    final private EmailService emailService;
 
     public AuthServiceImpl(
         UserRepository userRepository, 
         TokenProvider tokenProvider, 
         AuthenticationManager authenticationManager,
-        PasswordResetTokenRepository passwordResetTokenRepository
+        PasswordResetTokenRepository passwordResetTokenRepository,
+        EmailService emailService
     ) {
         this.userRepository = userRepository;
         this.tokenProvider = tokenProvider;
         this.authenticationManager = authenticationManager;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
+        this.emailService = emailService;
     }
 
     @Override
@@ -57,6 +62,7 @@ public class AuthServiceImpl implements AuthService{
                         .email(signUpDto.email())
                         .password(encryptedPassword)
                         .role(Role.valueOf(signUpDto.role().toUpperCase()))
+                        .approved(true)
                         .build();
         User savedUser = userRepository.save(user);
         String token = tokenProvider.generateAccessToken(savedUser);
@@ -69,10 +75,8 @@ public class AuthServiceImpl implements AuthService{
 
     @Override
     public AuthResponse signIn(SignInDto signInDto) throws ResponseStatusException {
-        Optional<User> user = userRepository.findByEmail(signInDto.email());
-        if (user.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED , "Email or password is incorrect");
-        }
+        User user = userRepository.findByEmail(signInDto.email())
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED , "Email or password is incorrect"));
         try {
             authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(signInDto.email(), signInDto.password())
@@ -80,43 +84,75 @@ public class AuthServiceImpl implements AuthService{
         } catch (Exception ex) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED , "Email or password is incorrect");
         }
-        String token = tokenProvider.generateAccessToken(user.get());
+        String token = tokenProvider.generateAccessToken(user);
         return new AuthResponse(
             "Sign up Successful", 
-            new UserResponse(user.get().getFirstName(), user.get().getLastName(), user.get().getEmail(), user.get().getRole()),
+            new UserResponse(user.getFirstName(), user.getLastName(), user.getEmail(), user.getRole()),
             token
         );   
     }
 
     @Override
     public MessageResponse forgetPassword(EmailDto emailDto) throws ResponseStatusException {
-        Optional<User> user = userRepository.findByEmail(emailDto.email());
-        if (user.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED , "There is no account with this email");
-        }
+        User user = userRepository.findByEmail(emailDto.email())
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED , "Email or password is incorrect"));
+
         String code = generateCode();
         Instant expiry = Instant.now().plusSeconds(60 * 10);
-        PasswordResetToken passwordResetToken = new PasswordResetToken(user.get(), code, expiry, false);
+        PasswordResetToken passwordResetToken = new PasswordResetToken(user, code, expiry, false);
         passwordResetTokenRepository.save(passwordResetToken);
-
-        //send email
+        emailService.SendSimpleEmail(emailDto.email(), "Password reset verification code", code);
         return new MessageResponse("Success", "A verification code was sent to your email");
     }
 
     @Override
     public MessageResponse verifyCode(VerificationCodeDto verificationCodeDto) {
-        Optional<User> user = userRepository.findByEmail(verificationCodeDto.email());
-        if (user.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED , "There is no account with this email");
+        User user = userRepository.findByEmail(verificationCodeDto.email())
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED , "There is no account with this email"));
+    
+        Set<PasswordResetToken> resetTokens = passwordResetTokenRepository.findByUser(user);
+        boolean found = false;
+        boolean codeExpired = false;
+        for (PasswordResetToken resetToken : resetTokens) {
+            if (resetToken.getToken().equals(verificationCodeDto.code()) && !resetToken.isVerified()) {
+                if (resetToken.getExpiryDate().isAfter(Instant.now()) ) {
+                    resetToken.setVerified(true);
+                    passwordResetTokenRepository.save(resetToken);
+                } else {
+                    codeExpired = true;
+                } 
+                found = true;   
+            }
         }
-        //check code
+
+        if (codeExpired) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Verification code is expired");
+        }
+        if (!found) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Verification code is incorrect");
+        }
         return new MessageResponse("Success", "code verified");
     }
 
     @Override
-    public AuthResponse resetPassword(EmailDto emailDto) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'resetPassword'");
+    public MessageResponse resetPassword(ResetPasswordDto resetPasswordDto) {
+        User user = userRepository.findByEmail(resetPasswordDto.email())
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED , "There is no account with this email"));
+            
+        Set<PasswordResetToken> resetTokens = passwordResetTokenRepository.findByUser(user);
+        boolean found = false;
+        for (PasswordResetToken resetToken : resetTokens) {
+            if (resetToken.isVerified() && resetToken.getExpiryDate().isAfter(Instant.now())) {
+                found = true;
+            }
+        }
+        if (!found) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not Verified");
+        }
+        String encryptedPassword = new BCryptPasswordEncoder().encode(resetPasswordDto.password());
+        user.setPassword(encryptedPassword);
+        userRepository.save(user);
+        return new MessageResponse("Success", "Password reset");
     }
 
     private String generateCode() {

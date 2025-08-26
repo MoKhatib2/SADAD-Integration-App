@@ -1,4 +1,4 @@
-package com.example.SadadApi.dtos;
+package com.example.SadadApi.responses;
 
 public record CodeNameResponse(Long id, String code, String name) {
 

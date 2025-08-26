@@ -1,5 +1,7 @@
 package com.example.SadadApi.dtos;
 
-public record IdDto(Long id) {
+import jakarta.validation.constraints.NotNull;
+
+public record IdDto(@NotNull Long id) {
 
 }

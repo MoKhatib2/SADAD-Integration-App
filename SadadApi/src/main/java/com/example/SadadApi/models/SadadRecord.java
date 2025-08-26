@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -78,10 +80,11 @@ public class SadadRecord {
     @JoinColumn(name = "location_id")
     private Location location;
 
-    @OneToMany(mappedBy = "sadadRecord", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "sadadRecord", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private Set<SadadCostCenter> allocations;
 
-    private Status status;
+    private SadadStatus status;
 
     private LocalDateTime createdAt;
 
@@ -91,10 +94,21 @@ public class SadadRecord {
 
     private String updatedBy;
 
-    private enum Status {
+    public enum SadadStatus {
         SAVED,
-        APPROVED,
+        CONFIRMED,
         CANCELED,
-        RELEASED
+        RELEASED,
+        INVOICE_FAILED
+    }
+
+    public void addAllocation(SadadCostCenter allocation) {
+        allocations.add(allocation);
+        allocation.setSadadRecord(this);
+    }
+
+    public void removeAllocation(SadadCostCenter allocation) {
+        allocations.remove(allocation);
+        allocation.setSadadRecord(null);
     }
 }

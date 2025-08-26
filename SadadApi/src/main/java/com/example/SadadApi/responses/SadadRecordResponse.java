@@ -1,25 +1,27 @@
-package com.example.SadadApi.dtos;
+package com.example.SadadApi.responses;
 
 import java.math.BigDecimal;
 import java.util.List;
 
+
 public record SadadRecordResponse(
     Long id,
     CodeNameResponse organization,
-    String legalEntity,
-    String remitterBank,
-    CodeNameResponse remitterBankAccount,
+    CodeNameResponse legalEntity,
+    CodeNameResponse remitterBank,
+    BankAccountResponse remitterBankAccount,
     CodeNameResponse biller,
     CodeNameResponse vendor,
     CodeNameResponse vendorSite,
-    String invoiceType,
-    String invoiceNumebr,
+    CodeNameResponse invoiceType,
+    String invoiceNumber,
     String subscriptionAccountNumber,
     BigDecimal amount,
     CodeNameResponse expenseAccount,
     CodeNameResponse business,
     CodeNameResponse location,
-    List<CostCenterResponse> costCenters
+    List<CostCenterResponse> costCenters,
+    String status
 ) {
 
 }

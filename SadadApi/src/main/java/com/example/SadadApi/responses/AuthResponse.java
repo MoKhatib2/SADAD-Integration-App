@@ -1,4 +1,4 @@
-package com.example.SadadApi.dtos;
+package com.example.SadadApi.responses;
 
 public record AuthResponse(String message, UserResponse user, String token) {
 

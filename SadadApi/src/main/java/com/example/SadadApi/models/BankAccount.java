@@ -22,13 +22,19 @@ public class BankAccount {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
     private String accountNumber;
+
+    @Column(unique = true)
+    private String iban;
 
     private String accountName;
 
     @ManyToOne
     @JoinColumn(name = "bank_id")
     private Bank bank;
+
+    @ManyToOne
+    @JoinColumn(name = "legal_entity_id")
+    private LegalEntity legalEntity;
 
 }

@@ -1,4 +1,4 @@
-package com.example.SadadApi.dtos;
+package com.example.SadadApi.responses;
 
 import com.example.SadadApi.models.User.Role;
 

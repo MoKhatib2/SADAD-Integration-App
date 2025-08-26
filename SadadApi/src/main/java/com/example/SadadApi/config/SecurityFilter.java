@@ -4,12 +4,14 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import com.example.SadadApi.services.impl.DetailsService;
 
 import java.io.IOException;
 
@@ -17,11 +19,11 @@ import java.io.IOException;
 public class SecurityFilter extends OncePerRequestFilter {
 
     private final TokenProvider tokenProvider;
-    private final UserDetailsService userDetailsService;
+    private final DetailsService detailsService;
 
-    public SecurityFilter(TokenProvider tokenProvider, UserDetailsService userDetailsService) {
+    public SecurityFilter(TokenProvider tokenProvider, DetailsService detailsService) {
         this.tokenProvider = tokenProvider;
-        this.userDetailsService = userDetailsService;
+        this.detailsService = detailsService;
     }
 
     @Override
@@ -35,21 +37,21 @@ public class SecurityFilter extends OncePerRequestFilter {
             String token = authHeader.replace("Bearer ", "").trim();
 
             try {
-                String userId = tokenProvider.validateToken(token); // subject = userId
-                UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
-
+                Long userId = Long.valueOf(tokenProvider.validateToken(token)); 
+                UserDetails userDetails = detailsService.loadUserById(userId);
+                System.out.println(userDetails);
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
                                 userDetails,
                                 null,
                                 userDetails.getAuthorities()
                         );
-
+                System.out.println(authentication);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
             } catch (Exception ex) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                return; // stop chain if token invalid
+                return; 
             }
         }
 

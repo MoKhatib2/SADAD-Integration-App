@@ -1,5 +1,7 @@
 package com.example.SadadApi.dtos;
 
-public record SadadRecordStatusDto(String status) {
+import jakarta.validation.constraints.NotBlank;
+
+public record SadadRecordStatusDto(@NotBlank String status) {
 
 }

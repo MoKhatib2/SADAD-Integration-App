@@ -32,11 +32,11 @@ public class AuthConfig {
                         // Public endpoints
                         .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
                         
-                        // Role-based access
-                        .requestMatchers(HttpMethod.GET, "/admin/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers("/manager/**").hasAnyRole("MANAGER", "ADMIN")
+                        // // Role-based access
+                        // .requestMatchers(HttpMethod.GET, "/admin/**").hasRole("ADMIN")
+                        // .requestMatchers(HttpMethod.POST, "/admin/**").hasRole("ADMIN")
+                        // .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
+                        // .requestMatchers("/manager/**").hasAnyRole("MANAGER", "ADMIN")
                         
                         // Everything else requires authentication
                         .anyRequest().authenticated()
