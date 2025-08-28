@@ -1,0 +1,150 @@
+<section class="m-6 flex justify justify-center items-center w-screen">
+    <div>
+         <h1 class="text-3xl mb-3 ml-1 font-bold">Create Sadad Record</h1>
+        <form [formGroup]="recordForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
+            <div class="flex flex-wrap gap-4 p-4">
+                 <div class="flex flex-col gap-1 w-2">
+                    <h4 class="text-2xl mb-2" >Organization</h4>
+                    <p-select formControlName="organizationId" [options]="organizations" [invalid]="isInvalid('organizationId')" optionLabel="code" optionValue="id" placeholder="Select Code" class="w-full md:w-56" />
+                    <p-iftalabel class="w-full">
+                        <input pInputText variant="filled" class="w-full"  id="organizationName" autocomplete="off" readonly/>
+                        <label class="w-full" for="organizationName">Name</label>
+                    </p-iftalabel>
+                    @if (isInvalid('organizationId')) {
+                        <p-message severity="error" size="small" variant="simple">Orgnization is required.</p-message>
+                    }
+                </div>
+                
+                 <div class="flex flex-col gap-1 w-2">
+                    <h4 class="text-2xl mb-2" >Legal Entity</h4>
+                    <p-select formControlName="legalEntityId" [options]="organizations" [invalid]="isInvalid('legalEntityId')" optionLabel="code" optionValue="id" placeholder="Select Code" class="w-full md:w-56" />
+                    <p-iftalabel class="w-full">
+                        <input pInputText variant="filled" class="w-full"  id="legalEntityName" autocomplete="off" readonly/>
+                        <label class="w-full" for="legalEntityName">Name</label>
+                    </p-iftalabel>
+                    @if (isInvalid('legalEntityId')) {
+                        <p-message severity="error" size="small" variant="simple">Legal Entity is required.</p-message>
+                    }
+                </div>
+                 <div class="flex flex-col gap-1 w-2">
+                    <h4 class="text-2xl mb-2" >Remitter Bank</h4>
+                    <p-select formControlName="remitterBankId" [options]="organizations" [invalid]="isInvalid('remitterBankId')" optionLabel="code" optionValue="id" placeholder="Select Code" class="w-full md:w-56" />
+                    <p-iftalabel class="w-full">
+                        <input pInputText variant="filled" class="w-full"  id="bankName" autocomplete="off" readonly/>
+                        <label class="w-full" for="bankName">Name</label>
+                    </p-iftalabel>
+                    @if (isInvalid('remitterBankId')) {
+                        <p-message severity="error" size="small" variant="simple">Remitter Bank is required.</p-message>
+                    }
+                </div>
+                 <div class="flex flex-col gap-1 w-2">
+                    <h4 class="text-2xl mb-2" >Remitter Bank Account</h4>
+                    <p-select formControlName="remitterBankAccountId" [options]="organizations" [invalid]="isInvalid('remitterBankAccountId')" optionLabel="code" optionValue="id" placeholder="Select Account Number" class="w-full md:w-56" />
+                    <p-iftalabel class="w-full">
+                        <input pInputText variant="filled" class="w-full" id="remitterBankAccountName" autocomplete="off" readonly/>
+                        <label class="w-full" for="remitterBankAccountName">Account Number</label>
+                    </p-iftalabel>
+                    @if (isInvalid('remitterBankAccountId')) {
+                        <p-message severity="error" size="small" variant="simple">Bank Account is required.</p-message>
+                    }
+                </div>
+                 <div class="flex flex-col gap-1 w-2">
+                    <h4 class="text-2xl mb-2" >Biller</h4>
+                    <p-select formControlName="billerId" [options]="organizations" [invalid]="isInvalid('billerId')" optionLabel="code" optionValue="id" placeholder="Select Code" class="w-full md:w-56" />
+                    <p-iftalabel class="w-full">
+                        <input pInputText variant="filled" class="w-full"  id="billerName" autocomplete="off" readonly/>
+                        <label class="w-full" for="billerName">Name</label>
+                    </p-iftalabel>
+                    @if (isInvalid('billerId')) {
+                        <p-message severity="error" size="small" variant="simple">Biller is required.</p-message>
+                    }
+                </div>
+                <div class="flex flex-col gap-1 w-2">
+                    <h4 class="text-2xl mb-2" >Vendor</h4>
+                    <p-select formControlName="vendorId" [options]="organizations" [invalid]="isInvalid('vendorId')" optionLabel="code" optionValue="id" placeholder="Select Code" class="w-full md:w-56" />
+                    <p-iftalabel class="w-full">
+                        <input pInputText variant="filled" class="w-full"  id="vendorName" autocomplete="off" readonly/>
+                        <label class="w-full" for="vendorName">Name</label>
+                    </p-iftalabel>
+                    @if (isInvalid('vendorId')) {
+                        <p-message severity="error" size="small" variant="simple">Vendor is required.</p-message>
+                    }
+                </div>
+                <div class="flex flex-col gap-1 w-2">
+                    <h4 class="text-2xl mb-2" >Vendor Site</h4>
+                    <p-select formControlName="vendorSiteId" [options]="organizations" [invalid]="isInvalid('vendorSiteId')" optionLabel="code" optionValue="id" placeholder="Select Code" class="w-full md:w-56" />
+                    <p-iftalabel class="w-full">
+                        <input pInputText variant="filled" class="w-full"  id="vendorSiteName" autocomplete="off" readonly/>
+                        <label class="w-full" for="vendorSiteName">Name</label>
+                    </p-iftalabel>
+                    @if (isInvalid('vendorSiteId')) {
+                        <p-message severity="error" size="small" variant="simple">Vendor Site is required.</p-message>
+                    }
+                </div>
+                <div class="flex flex-col gap-1 w-2 mb-2">
+                    <h4 class="text-2xl mb-2" >Invoice Type</h4>
+                    <p-select formControlName="invoiceTypeId" [options]="organizations" [invalid]="isInvalid('invoiceTypeId')" optionLabel="code" optionValue="id" placeholder="Select Type" class="w-full md:w-56" />
+                    @if (isInvalid('invoiceTypeId')) {
+                        <p-message severity="error" size="small" variant="simple">Invoice Type is required.</p-message>
+                    }
+                </div>
+                <div class="flex flex-col gap-1 w-2 mb-2">
+                    <h4 class="text-2xl mb-2" >Invoice Number</h4>
+                    <input pInputText formControlName="invoiceNumber" class="w-full" id="invoiceNumber" [invalid]="isInvalid('invoiceNumber')" placeholder="Enter Invoice Number" autocomplete="off"/>
+                    @if (isInvalid('invoiceNumber')) {
+                        <p-message severity="error" size="small" variant="simple">Invoice Number is required.</p-message>
+                    }
+                </div>   
+                <div class="flex flex-col gap-1 w-2 mb-2">
+                    <h4 class="text-2xl mb-2" >Subscription Account</h4>
+                    <input pInputText formControlName="subscriptionAccountNumber" class="w-full" id="subscriptionAccountNumber" placeholder="Enter Subscription Account Number" autocomplete="off"/>
+                    @if (isInvalid('subscriptionAccountNumber')) {
+                        <p-message severity="error" size="small" variant="simple">Subscription Account Number is required.</p-message>
+                    }
+                </div>  
+                <div class="flex flex-col gap-1 w-2 mb-2">
+                    <h4 class="text-2xl mb-2" >Amount</h4>
+                    <p-inputnumber formControlName="amount" placeholder="Enter Amount" inputId="currency-us" mode="currency" currency="EGP" locale="en-US" />  
+                    @if (isInvalid('amount')) {
+                        <p-message severity="error" size="small" variant="simple">Amount is required.</p-message>
+                    }
+                </div> 
+                <div class="flex flex-col gap-1 w-2">
+                    <h4 class="text-2xl mb-2" >Expense Account</h4>
+                    <p-select formControlName="expenseAccountId" [options]="organizations" [invalid]="isInvalid('expenseAccountId')" optionLabel="code" optionValue="id" placeholder="Select Code" class="w-full md:w-56" />
+                    <p-iftalabel class="w-full">
+                        <input pInputText variant="filled" class="w-full"  id="expenseAccountName" autocomplete="off" readonly/>
+                        <label class="w-full" for="expenseAccountName">Name</label>
+                    </p-iftalabel>
+                    @if (isInvalid('expenseAccountId')) {
+                        <p-message severity="error" size="small" variant="simple">Expense Account is required.</p-message>
+                    }
+                </div>
+                <div class="flex flex-col gap-1 w-2">
+                    <h4 class="text-2xl mb-2" >Business</h4>
+                    <p-select formControlName="businessId" [options]="organizations" [invalid]="isInvalid('businessId')" optionLabel="code" optionValue="id" placeholder="Select Code" class="w-full md:w-56" />
+                    <p-iftalabel class="w-full">
+                        <input pInputText variant="filled" class="w-full"  id="businessName" autocomplete="off" readonly/>
+                        <label class="w-full" for="businessName">Name</label>
+                    </p-iftalabel>
+                    @if (isInvalid('businessId')) {
+                        <p-message severity="error" size="small" variant="simple">Business is required.</p-message>
+                    }
+                </div>
+                <div class="flex flex-col gap-1 w-2">
+                    <h4 class="text-2xl mb-2" >Location</h4>
+                    <p-select formControlName="locationId" [options]="organizations" [invalid]="isInvalid('locationId')" optionLabel="code" optionValue="id" placeholder="Select Code" class="w-full md:w-56" />
+                    <p-iftalabel class="w-full">
+                        <input pInputText variant="filled" class="w-full"  id="locationName" autocomplete="off" readonly/>
+                        <label class="w-full" for="locationName">Name</label>
+                    </p-iftalabel>
+                    @if (isInvalid('locationId')) {
+                        <p-message severity="error" size="small" variant="simple">Location is required.</p-message>
+                    }
+                </div>              
+            </div>
+            <button pButton severity="secondary" type="submit"><span pButtonLabel>Submit</span></button>
+        </form>
+    </div>
+    
+</section>

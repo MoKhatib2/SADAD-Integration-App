@@ -1,0 +1,176 @@
+<section class="flex justify-center items-center w-screen">
+    <div class="card w-[87%] m-4">
+        <p-toolbar class="mb-2">
+            <ng-template #start>
+                <p-button severity="secondary" label="New" icon="pi pi-plus" class="mr-2 text-white" (onClick)="onNew()" />
+                <p-button severity="danger" label="Cancel" icon="pi pi-times" class="mr-2" outlined (onClick)="onCancel()" [disabled]="!selectedRecord()" />
+                <p-button severity="warn" label="Confirm" icon="pi pi-check" class="mr-2" outlined (onClick)="onCancel()" [disabled]="!selectedRecord()" />
+                <p-button severity="success" label="Release" icon="pi pi-arrow-right" class="mr-2" outlined (onClick)="onCancel()" [disabled]="!selectedRecord()" />
+            </ng-template>
+        </p-toolbar>
+        <p-table
+            #dt2 
+            [value]="records()"
+            dataKey="id"
+            [rows]="10"
+            [rowsPerPageOptions]="[10, 25, 50]"
+            [loading]="loading()"
+            [paginator]="true"
+            [(selection)]="selectedRecord"
+            [globalFilterFields]="['organization.name', 'legalEntity.name', 'remitterBank.name', 'location.name','status']"
+            [scrollable]="true"
+            scrollHeight="600px"
+            [tableStyle]="{ 'min-width': '75rem', 'min-height': '20rem' }"
+        >
+            <ng-template #caption>
+                <div class="flex items-center justify-between">
+                    <h5 class="m-0">Manage Records</h5>
+                    <p-iconfield iconPosition="left" class="ml-auto">
+                        <p-inputicon>
+                            <i class="pi pi-search"></i>
+                        </p-inputicon>
+                        <input pInputText type="text" (input)="dt2.filterGlobal($event.target.value, 'contains')" placeholder="Search keyword" />
+                    </p-iconfield>
+                </div>
+            </ng-template>
+            <ng-template #header>
+                <tr>
+                    <th></th>
+                    <th></th>
+                    <th>Status</th>
+                    <th>Oraganization</th>
+                    <th>Legal Entity</th>
+                    <th>Remitter Bank</th>   
+                    <th>Bank Account Number</th>
+                    <th>Biller</th>
+                    <th>Vendor</th>
+                    <th>Vendor Site</th>
+                    <th>Invoice Type</th>
+                    <th>Invoice Number</th>
+                    <th>Subscription Account Number</th>
+                    <th>Amount</th>
+                    <th>Expense Account</th>
+                    <th>Business</th>
+                    <th>Location</th>
+                </tr>
+                <tr>
+                    <th></th>
+                    <th></th>
+                    <th>
+                        <p-columnFilter field="status" matchMode="equals" [showMenu]="false">
+                            <ng-template #filter let-value let-filter="filterCallback">
+                                <p-select [options]="statuses()" (onChange)="filter($event.value)" placeholder="Select One" [showClear]="true" style="min-width: 12rem">
+                                    <ng-template let-option #item>
+                                        <p-tag [value]="option.value" [severity]="getSeverity(option.value)" />
+                                    </ng-template>
+                                </p-select>
+                            </ng-template>
+                        </p-columnFilter>
+                    </th>
+                    <th>
+                        <p-columnFilter type="text" field="organization.name" placeholder="Type to search" ariaLabel="Filter Oraganization" filterOn="input"></p-columnFilter>
+                    </th>
+                    <th>
+                        <p-columnFilter type="text" field="legalEntity.name" placeholder="Enter key to search" ariaLabel="Filter Legal Entity"></p-columnFilter>
+                    </th>
+                    <th>
+                        <p-columnFilter type="text" field="remitterBank.name" placeholder="Enter key to search" ariaLabel="Filter Bank"></p-columnFilter>
+                    </th>
+                    <th>
+                        <p-columnFilter type="text" field="remitterBankAccount.accountNumber" placeholder="Enter key to search" ariaLabel="Filter Bank Account Number"></p-columnFilter>
+                    </th>
+                    <th>
+                        <p-columnFilter type="text" field="biller.name" placeholder="Enter key to search" ariaLabel="Filter Biller"></p-columnFilter>
+                    </th>
+                    <th>
+                        <p-columnFilter type="text" field="vendor.name" placeholder="Enter key to search" ariaLabel="Filter Vendor"></p-columnFilter>
+                    </th>
+                    <th>
+                        <p-columnFilter type="text" field="vendorSite.name" placeholder="Enter key to search" ariaLabel="Filter Vendor Site"></p-columnFilter>
+                    </th>
+                    <th>
+                        <p-columnFilter type="text" field="invoiceType.name" placeholder="Enter key to search" ariaLabel="Filter Invoice Type"></p-columnFilter>
+                    </th>
+                    <th>
+                        <p-columnFilter type="text" field="invoiceNumber" placeholder="Enter key to search" ariaLabel="Filter Invoice Number"></p-columnFilter>
+                    </th>
+                    <th>
+                        <p-columnFilter type="text" field="subscriptionAccountNumber" placeholder="Enter key to search" ariaLabel="Filter Subscription Account Number"></p-columnFilter>
+                    </th>
+                    <th>
+                        <p-columnFilter type="numeric" field="amount" currency="EGP" placeholder="Enter key to search" ariaLabel="Filter Amount"></p-columnFilter>
+                    </th>
+                    <th>
+                        <p-columnFilter type="text" field="expenseAccount.name" placeholder="Enter key to search" ariaLabel="Filter Expense Account"></p-columnFilter>
+                    </th>
+                    <th>
+                        <p-columnFilter type="text" field="business.name" placeholder="Enter key to search" ariaLabel="Filter Business"></p-columnFilter>
+                    </th>
+                    <th>
+                        <p-columnFilter type="text" field="location.name" placeholder="Enter key to search" ariaLabel="Filter Location"></p-columnFilter>
+                    </th>                
+                </tr>
+            </ng-template>
+            <ng-template #body let-record>
+                <tr>
+                    <td style="width: 1rem">
+                        <p-tableRadioButton [value]="record" />
+                    </td>
+                    <td>
+                        <p-button severity="info" icon="pi pi-pencil" class="mr-2" [outlined]="true" (click)="editProduct(record)" />
+                    </td>
+                    <td>
+                        <p-tag [value]="record.status" [severity]="getSeverity(record.status)" />
+                    </td>
+                    <td>
+                        {{ record.organization.name }}
+                    </td>
+                    <td>
+                        {{ record.legalEntity.name }}
+                    </td>
+                    <td>
+                        {{ record.remitterBank.name }}
+                    </td>
+                    <td>
+                        {{ record.remitterBankAccount.accountNumber }}
+                    </td>
+                    <td>
+                        {{ record.biller.name }}
+                    </td>
+                    <td>
+                        {{ record.vendor.name }}
+                    </td>
+                    <td>
+                        {{ record.vendorSite.name }}
+                    </td>
+                    <td>
+                        {{ record.invoiceType.name }}
+                    </td>
+                    <td>
+                        {{ record.invoiceNumber }}
+                    </td>
+                    <td>
+                        {{ record.subscriptionAccountNumber }}
+                    </td>
+                    <td>
+                        {{ record.amount | currency: 'EGP' }}
+                    </td>
+                    <td>
+                        {{ record.expenseAccount.name }}
+                    </td>
+                    <td>
+                        {{ record.business.name }}
+                    </td>
+                    <td>
+                        {{ record.location.name }}
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template #emptymessage>
+                <tr>
+                    <td colspan="5">No records found.</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</section>
