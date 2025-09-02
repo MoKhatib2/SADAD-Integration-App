@@ -16,6 +16,6 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class VendorSite extends BaseEntity{
     @ManyToOne
-    @JoinColumn(name = "vendor_id")
+    @JoinColumn(name = "vendor_id", nullable = false)
     private Vendor vendor;
 }

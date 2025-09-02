@@ -33,7 +33,7 @@
                 }
             </div>
             <div class="flex flex-col w-200 gap-1">
-                <input pInputText type="text" id="password" placeholder="Password" formControlName="password" [invalid]="isInvalid('password')" />
+                <input pInputText type="password" id="password" placeholder="Password" formControlName="password" [invalid]="isInvalid('password')" />
                 @if (isInvalid('password')) {
                     @if (signupForm.get('password')?.errors?.['required']) {
                         <p-message severity="error" size="small" variant="simple">Password is required.</p-message>

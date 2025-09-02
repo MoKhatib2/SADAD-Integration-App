@@ -1,33 +1,58 @@
 <section class="m-6 flex justify-center items-center w-screen" >
-    <p-toast /> 
     <div class="flex flex-col justify-center items-start w-fit">
-        <h1 class="text-2xl mb-3 ml-1 font-bold">Login</h1>
+        <h1 class="text-2xl mb-3 ml-1 font-bold">{{forgotPassword() ? 'Forgot Password' : 'Login'}}</h1>
         <div class="card flex bg-gray-100 p-4 rounded-2xl">
-            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-4 w-full sm:w-56">
-                <div class="flex flex-col w-200 gap-1">
-                    <input pInputText type="email" id="email" placeholder="Email" formControlName="email" [invalid]="isInvalid('email')" />
-                    @if (isInvalid('email')) {
-                        @if (loginForm.get('email')?.errors?.['required']) {
-                            <p-message severity="error" size="small" variant="simple">Email is required.</p-message>
+            @if (!forgotPassword()) { 
+                <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-4 w-full sm:w-56">
+                    <div class="flex flex-col w-200 gap-1">
+                        <input pInputText type="email" id="email" placeholder="Email" formControlName="email" [invalid]="isInvalid('email')" />
+                        @if (isInvalid('email')) {
+                            @if (loginForm.get('email')?.errors?.['required']) {
+                                <p-message severity="error" size="small" variant="simple">Email is required.</p-message>
+                            }
+                            @if (loginForm.get('email')?.errors?.['email']) {
+                                <p-message severity="error" size="small" variant="simple">Please enter a valid email.</p-message>
+                            }
                         }
-                        @if (loginForm.get('email')?.errors?.['email']) {
-                            <p-message severity="error" size="small" variant="simple">Please enter a valid email.</p-message>
+                    </div>
+                    <div class="flex flex-col w-200 gap-1">
+                        <input pInputText type="password" id="password" placeholder="Password" formControlName="password" [invalid]="isInvalid('password')" />
+                        @if (isInvalid('password')) {
+                            @if (loginForm.get('password')?.errors?.['required']) {
+                                <p-message severity="error" size="small" variant="simple">Password is required.</p-message>
+                            }
+                            @if (loginForm.get('password')?.errors?.['pattern']) {
+                                <p-message severity="error" size="small" variant="simple">Password must be at least 8 characters.</p-message>
+                            }
                         }
-                    }
-                </div>
-                <div class="flex flex-col w-200 gap-1">
-                    <input pInputText type="password" id="password" placeholder="Password" formControlName="password" [invalid]="isInvalid('password')" />
-                    @if (isInvalid('password')) {
-                        @if (loginForm.get('password')?.errors?.['required']) {
-                            <p-message severity="error" size="small" variant="simple">Password is required.</p-message>
+                    </div>
+                    <div class="flex flex-col justify-center items-center w-full gap-2">
+                        <button pButton severity="secondary" class="w-200 bg-gray-400 hover:bg-gray-500 text-white" type="submit" [disabled]="loginForm.invalid"><span pButtonLabel>Submit</span></button>
+                        <button (click)="onForgetPassword()" type="button" class="text-sm cursor-pointer font-medium text-purple-500 hover:underline">Forgot Password</button>
+                    </div>
+                </form>
+            }
+            
+
+            @if (forgotPassword()) {
+                <form [formGroup]="emailForm" (ngSubmit)="onSendCode()" class="flex flex-col gap-4 w-full sm:w-56">
+                    <div class="flex flex-col w-200 gap-1">
+                        <input pInputText type="email" id="email" placeholder="Email" formControlName="email" [invalid]="isInvalid('email')" />
+                        @if (isInvalid('email')) {
+                            @if (emailForm.get('email')?.errors?.['required']) {
+                                <p-message severity="error" size="small" variant="simple">Email is required.</p-message>
+                            }
+                            @if (emailForm.get('email')?.errors?.['email']) {
+                                <p-message severity="error" size="small" variant="simple">Please enter a valid email.</p-message>
+                            }
                         }
-                        @if (loginForm.get('password')?.errors?.['pattern']) {
-                            <p-message severity="error" size="small" variant="simple">Password must be at least 8 characters.</p-message>
-                        }
-                    }
-                </div>
-                <button pButton severity="secondary" class="w-200 bg-gray-400 hover:bg-gray-500 text-white" type="submit" [disabled]="loginForm.invalid"><span pButtonLabel>Submit</span></button>
-            </form>
+                    </div>
+                    <div class="flex flex-col justify-center items-center w-full gap-2">
+                        <button pButton severity="secondary" class="w-200 bg-gray-400 hover:bg-gray-500 text-white" type="submit" [disabled]="emailForm.invalid"><span pButtonLabel>Send Code</span></button>
+                    </div>
+                </form>
+            }
+            
         </div>
     </div>
 </section>

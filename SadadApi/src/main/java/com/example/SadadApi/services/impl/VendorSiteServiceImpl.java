@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.example.SadadApi.dtos.IdDto;
+import com.example.SadadApi.dtos.CodeNameDto;
 import com.example.SadadApi.dtos.VendorSiteDto;
 import com.example.SadadApi.models.Vendor;
 import com.example.SadadApi.models.VendorSite;
@@ -51,12 +51,12 @@ public class VendorSiteServiceImpl implements VendorSiteService {
     }
 
     @Override
-    public GenericResponse<CodeNameResponse> update(VendorSiteDto dto) {
-        if (dto.id() == null) {
+    public GenericResponse<CodeNameResponse> update(Long id, CodeNameDto dto) {
+        if (id == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "VendorSite id is required");
         }
 
-        VendorSite vendorSite = vendorSiteRepository.findById(dto.id())
+        VendorSite vendorSite = vendorSiteRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "VendorSite not found"));
 
         vendorSiteRepository.findByCode(dto.code()).ifPresent(existing -> {
@@ -90,20 +90,21 @@ public class VendorSiteServiceImpl implements VendorSiteService {
     @Override
     public GenericResponse<CodeNameResponse> findById(Long id) {
         VendorSite entity = vendorSiteRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "VendorSite not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "VendorSite not found"));
 
         CodeNameResponse response = new CodeNameResponse(entity.getId(), entity.getCode(), entity.getName());
         return new GenericResponse<>("VendorSite retrieved successfully", response);
     }
 
     @Override
-    public GenericResponse<List<CodeNameResponse>> findAllByVendor(IdDto idDto) {
-        Long vendorId = idDto.id();
-        List<CodeNameResponse> list = vendorSiteRepository.findAllByVendorId(vendorId).stream()
+    public GenericResponse<List<CodeNameResponse>> findAllByVendor(Long vendorId) {
+        Vendor vendor = vendorRepository.findById(vendorId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Vendor not found"));
+        List<CodeNameResponse> list = vendorSiteRepository.findAllByVendor(vendor).stream()
                 .map(vs -> new CodeNameResponse(vs.getId(), vs.getCode(), vs.getName()))
                 .toList();
 
-        return new GenericResponse<>("VendorSite list for vendor retrieved successfully", list);
+        return new GenericResponse<>("Vendor Site list for vendor retrieved successfully", list);
     }
 
 

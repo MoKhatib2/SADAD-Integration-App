@@ -55,14 +55,14 @@ export class Signup implements OnInit, OnDestroy {
       this.signupSub = this._AuthService.signup(this.signupForm.value).subscribe({
         next: (response) => {
           this.isLoading.set(false);
-          this._MessageService.add({ severity: 'success', summary: 'Success', detail: 'Form Submitted', life: 3000 });
+          this._MessageService.add({ severity: 'success', summary: 'Success', detail: 'Sign Up Successful', life: 3000 });
           this.formSubmitted.set(false);
           setTimeout(() => {
             this._Router.navigate(['/home']);
           }, 1000);       
         },
         error: (err) => {
-          this.errorMessage = err.message
+          this.errorMessage.set(err.message)
           this.isLoading.set(false); 
         }
       });

@@ -1,5 +1,9 @@
 package com.example.SadadApi.controllers;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -13,11 +17,6 @@ import com.example.SadadApi.responses.MessageResponse;
 import com.example.SadadApi.services.AuthService;
 
 import jakarta.validation.Valid;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PutMapping;
 
 
 @RestController
@@ -39,17 +38,17 @@ public class AuthController {
         return ResponseEntity.ok(authService.signIn(signInDto));
     }
 
-    @PostMapping("/forgetPassword")
+    @PostMapping("/forget-password")
     public ResponseEntity<MessageResponse> forgetPassword(@RequestBody @Valid EmailDto emailDto) {
        return ResponseEntity.ok(authService.forgetPassword(emailDto));
     }
 
-    @PostMapping("/verifyCode")
+    @PostMapping("/verify-code")
     public ResponseEntity<MessageResponse> verifyCode(@RequestBody @Valid VerificationCodeDto verificationCodeDto) {
        return ResponseEntity.ok(authService.verifyCode(verificationCodeDto));
     }
     
-    @PutMapping("/resetPassword")
+    @PutMapping("/reset-password")
     public ResponseEntity<MessageResponse> resetPassword(@RequestBody @Valid ResetPasswordDto resetPasswordDto) {
         return ResponseEntity.ok(authService.resetPassword(resetPasswordDto));
     }

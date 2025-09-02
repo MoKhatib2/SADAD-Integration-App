@@ -1,8 +1,6 @@
 <p-megamenu [model]="items" [style]="{ 'border-radius': '3rem', display: 'flex' }" class="p-4 m-2 bg-surface-0 dark:bg-surface-900">
     <ng-template #start>
-        <svg width="33" height="35" viewBox="0 0 33 35" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-8">
-            <path d="..." fill="var(--primary-color)" />
-        </svg>
+        <p-avatar image="../images/document-svgrepo-com.svg"/>
     </ng-template>
     <ng-template #item let-item>
         <a *ngIf="item.root" 
@@ -30,6 +28,6 @@
         </div>
     </ng-template>
     <ng-template #end>
-        <p-avatar image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png" shape="circle" />
+        <!-- <p-avatar image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png" shape="circle" /> -->
     </ng-template>
 </p-megamenu>

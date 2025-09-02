@@ -1,6 +1,8 @@
 package com.example.SadadApi.models;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -33,5 +35,5 @@ public class CostCenter {
 
     @OneToMany(mappedBy = "costCenter", cascade = CascadeType.ALL)
     @JsonIgnore
-    private List<SadadCostCenter> allocations;
+    private Set<SadadCostCenter> allocations = new HashSet<>();
 }

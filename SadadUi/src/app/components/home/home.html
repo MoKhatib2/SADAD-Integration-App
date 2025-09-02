@@ -2,10 +2,20 @@
     <div class="card w-[87%] m-4">
         <p-toolbar class="mb-2">
             <ng-template #start>
-                <p-button severity="secondary" label="New" icon="pi pi-plus" class="mr-2 text-white" (onClick)="onNew()" />
-                <p-button severity="danger" label="Cancel" icon="pi pi-times" class="mr-2" outlined (onClick)="onCancel()" [disabled]="!selectedRecord()" />
-                <p-button severity="warn" label="Confirm" icon="pi pi-check" class="mr-2" outlined (onClick)="onCancel()" [disabled]="!selectedRecord()" />
-                <p-button severity="success" label="Release" icon="pi pi-arrow-right" class="mr-2" outlined (onClick)="onCancel()" [disabled]="!selectedRecord()" />
+                @if(currUser()) {
+                    @if(currUser()?.role?.toUpperCase() === 'ENTRY') {
+                        <p-button severity="secondary" label="New" icon="pi pi-plus" class="mr-2 text-white" (onClick)="onNew()" />
+                        <p-button severity="info" label="Duplicate" icon="pi pi-clone" class="mr-2 text-white" (onClick)="onDuplicate()" [disabled]="disableButtons()"/>
+                    }
+                    @if(currUser()?.role?.toUpperCase() === 'APPROVE') { 
+                        <p-button severity="warn" label="Confirm" icon="pi pi-check" class="mr-2" outlined (onClick)="onConfirm()" [disabled]="disableButtons()" />
+                        <p-button severity="danger" label="Cancel" icon="pi pi-times" class="mr-2" outlined (onClick)="onCancel()" [disabled]="disableButtons()" />
+                    }
+                    @if(currUser()?.role?.toUpperCase() === 'RELEASE') {
+                        <p-button severity="success" label="Release" icon="pi pi-arrow-right" class="mr-2" outlined (onClick)="onRelease()" [disabled]="disableRelease()" />
+                        <p-button severity="warn" label="Retry Invoice Creation" icon="pi pi-replay" class="mr-2" outlined (onClick)="onRetry()" [disabled]="disableRetry()" />
+                    }   
+                }                
             </ng-template>
         </p-toolbar>
         <p-table
@@ -61,7 +71,7 @@
                             <ng-template #filter let-value let-filter="filterCallback">
                                 <p-select [options]="statuses()" (onChange)="filter($event.value)" placeholder="Select One" [showClear]="true" style="min-width: 12rem">
                                     <ng-template let-option #item>
-                                        <p-tag [value]="option.value" [severity]="getSeverity(option.value)" />
+                                        <p-tag [value]="option.value.split('_').join(' ')" [severity]="getSeverity(option.value)" />
                                     </ng-template>
                                 </p-select>
                             </ng-template>
@@ -117,10 +127,12 @@
                         <p-tableRadioButton [value]="record" />
                     </td>
                     <td>
-                        <p-button severity="info" icon="pi pi-pencil" class="mr-2" [outlined]="true" (click)="editProduct(record)" />
+                        @if(record.status.toUpperCase() === 'SAVED') {
+                            <p-button severity="info" icon="pi pi-pencil" class="mr-2" [outlined]="true" (click)="editProduct(record.id)" />
+                        }
                     </td>
                     <td>
-                        <p-tag [value]="record.status" [severity]="getSeverity(record.status)" />
+                        <p-tag [value]="record.status.split('_').join(' ')" [severity]="getSeverity(record.status)" />
                     </td>
                     <td>
                         {{ record.organization.name }}

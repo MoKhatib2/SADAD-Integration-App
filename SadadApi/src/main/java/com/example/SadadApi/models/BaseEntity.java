@@ -13,8 +13,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @MappedSuperclass
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public abstract class BaseEntity {
 
     @Id

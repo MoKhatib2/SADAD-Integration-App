@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.example.SadadApi.dtos.CodeNameDto;
 import com.example.SadadApi.dtos.VendorDto;
 import com.example.SadadApi.models.Biller;
 import com.example.SadadApi.models.Vendor;
@@ -48,12 +49,12 @@ public class VendorServiceImpl implements VendorService{
     }
 
     @Override
-    public GenericResponse<CodeNameResponse> update(CodeNameResponse dto) {
-        if (dto.id() == null) {
+    public GenericResponse<CodeNameResponse> update(Long id, CodeNameDto dto) {
+        if (id == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Vendor id is required");
         }
 
-        Vendor vendor = vendorRepository.findById(dto.id())
+        Vendor vendor = vendorRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Vendor not found"));
 
         // Ensure code uniqueness
@@ -68,7 +69,7 @@ public class VendorServiceImpl implements VendorService{
         if (vendor.getName() != null) {
             vendor.setName(dto.name());
         }
-  
+
         Vendor updated = vendorRepository.save(vendor);
 
         CodeNameResponse response = new CodeNameResponse(updated.getId(), updated.getCode(), updated.getName());

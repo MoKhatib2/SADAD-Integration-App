@@ -1,21 +1,14 @@
 package com.example.SadadApi.models;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class LegalEntity extends BaseEntity{
 
-    @ManyToOne
-    @JoinColumn(name = "organization_id")
-    private Organization organization;
 }

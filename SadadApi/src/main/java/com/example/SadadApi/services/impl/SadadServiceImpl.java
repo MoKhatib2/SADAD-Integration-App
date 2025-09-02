@@ -2,11 +2,10 @@ package com.example.SadadApi.services.impl;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -28,10 +27,10 @@ import com.example.SadadApi.models.Location;
 import com.example.SadadApi.models.Organization;
 import com.example.SadadApi.models.SadadCostCenter;
 import com.example.SadadApi.models.SadadRecord;
-import com.example.SadadApi.models.Vendor;
-import com.example.SadadApi.models.VendorSite;
 import com.example.SadadApi.models.SadadRecord.SadadStatus;
 import com.example.SadadApi.models.User;
+import com.example.SadadApi.models.Vendor;
+import com.example.SadadApi.models.VendorSite;
 import com.example.SadadApi.repositories.BankAccountRepository;
 import com.example.SadadApi.repositories.BankRepository;
 import com.example.SadadApi.repositories.BillerRepository;
@@ -79,7 +78,7 @@ public class SadadServiceImpl implements SadadRecordService{
 
     @Override
     @Transactional
-    public GenericResponse<SadadRecordResponse> createRecord(SadadRecordDto dto) {
+    public GenericResponse<SadadRecordResponse> createRecord(@Valid SadadRecordDto dto) {
         Organization organization = organizationRepository.findById(dto.organizationId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Organization not found"));
     
@@ -114,7 +113,7 @@ public class SadadServiceImpl implements SadadRecordService{
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Location not found"));
 
         String validationMessage = validateDependencies(organization, remitterBank, bankAccount, biller, vendor, vendorSite);
-        if ( validationMessage != "OK") {
+        if (!validationMessage.equals("OK")) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, validationMessage);
         }
 
@@ -129,7 +128,7 @@ public class SadadServiceImpl implements SadadRecordService{
         sadadRecord.setVendor(vendor);
         sadadRecord.setVendorSite(vendorSite);
         sadadRecord.setInvoiceType(invoiceType);
-        sadadRecord.setInvoiceNumber(dto.invoiceNumebr());
+        sadadRecord.setInvoiceNumber(dto.invoiceNumber());
         sadadRecord.setSubscriptionAccountNumber(dto.subscriptionAccountNumber());
         sadadRecord.setAmount(dto.amount());
         sadadRecord.setExpenseAccount(expenseAccount);
@@ -151,12 +150,16 @@ public class SadadServiceImpl implements SadadRecordService{
     
     @Override
     @Transactional
-    public GenericResponse<SadadRecordResponse> updateRecord(SadadRecordDto dto, Long id) {
+    public GenericResponse<SadadRecordResponse> updateRecord(@Valid SadadRecordDto dto, Long id) {
         if(id == null) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "id is required");
         }
         SadadRecord sadadRecord = sadadRecordRepository.findAllWithAllocationsAndCostCentersById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "SADAD Record not found"));
+
+        if (sadadRecord.getStatus() != SadadStatus.SAVED) {
+               throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Can only update saved records");
+        }
 
         Organization organization = organizationRepository.findById(dto.organizationId())
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Organization not found"));
@@ -208,7 +211,7 @@ public class SadadServiceImpl implements SadadRecordService{
         sadadRecord.setVendor(vendor);
         sadadRecord.setVendorSite(vendorSite);
         sadadRecord.setInvoiceType(invoiceType);
-        sadadRecord.setInvoiceNumber(dto.invoiceNumebr());
+        sadadRecord.setInvoiceNumber(dto.invoiceNumber());
         sadadRecord.setSubscriptionAccountNumber(dto.subscriptionAccountNumber());
         sadadRecord.setAmount(dto.amount());
         sadadRecord.setExpenseAccount(expenseAccount);
@@ -333,9 +336,9 @@ public class SadadServiceImpl implements SadadRecordService{
         }
 
         boolean released = kyribaService.releaseToKyriba(sadadRecord);
-
+        boolean invoiceCreated = false;
         if (released) {
-            boolean invoiceCreated = fusionErpService.createInvoice(sadadRecord);
+                invoiceCreated = fusionErpService.createInvoice(sadadRecord);
             if (!invoiceCreated) {
                 sadadRecord.setStatus(SadadStatus.INVOICE_FAILED);
             } else {
@@ -348,8 +351,36 @@ public class SadadServiceImpl implements SadadRecordService{
         SadadRecord saved = sadadRecordRepository.save(sadadRecord);
 
         SadadRecordResponse response = createResponse(saved);
-
         return new GenericResponse<>("Record released successfully", response);
+    }
+
+    @Override
+    public GenericResponse<SadadRecordResponse> retryInvoiceRecord(Long id) {
+        if(id == null) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "id is required");
+        }
+        SadadRecord sadadRecord = sadadRecordRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "SADAD Record not found"));
+
+        if (sadadRecord.getStatus() == SadadStatus.RELEASED) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Status is already released");
+        }   
+
+        if (sadadRecord.getStatus() != SadadStatus.INVOICE_FAILED) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Record was not released");
+        }
+
+        boolean invoiceCreated = fusionErpService.createInvoice(sadadRecord);
+        if (!invoiceCreated) {
+                sadadRecord.setStatus(SadadStatus.INVOICE_FAILED);
+        } else {
+                sadadRecord.setStatus(SadadStatus.RELEASED);
+        }
+         
+        SadadRecord saved = sadadRecordRepository.save(sadadRecord);
+
+        SadadRecordResponse response = createResponse(saved);
+        return new GenericResponse<>("Invoice created successfully", response);
     }
 
     @Override
@@ -414,12 +445,15 @@ public class SadadServiceImpl implements SadadRecordService{
         } else {
                 allocations = new HashSet<>();
         }
-        
         BigDecimal totalPercentage = BigDecimal.ZERO;
+        HashSet<Long> foundIds = new HashSet<>();
         for (SadadRecordDto.CostCenterDto costCenterDto : dto.costCenters()) {
             CostCenter costCenter = costCenterRepository.findById(costCenterDto.costCenterId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cost Center not found"));
-    
+            if (foundIds.contains(costCenter.getId())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Duplicate cost centers");
+            }
+            foundIds.add(costCenter.getId());
             SadadCostCenter allocation = new SadadCostCenter();
             allocation.setSadadRecord(sadadRecord);
             allocation.setCostCenter(costCenter);
@@ -502,5 +536,6 @@ public class SadadServiceImpl implements SadadRecordService{
         if (entity == null) return null;
         return new CodeNameResponse(entity.getId(), entity.getCode(), entity.getName());
     }
+
     
 }

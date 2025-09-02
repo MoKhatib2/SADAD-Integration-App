@@ -1,0 +1,12 @@
+<section class="m-6 flex justify-center items-center w-screen" >
+    <div class="flex flex-col justify-center items-start w-fit">
+        <h1 class="text-2xl mb-3 ml-1 font-bold">Verify Code</h1>
+        <div class="card flex flex-col bg-gray-100 p-4 gap-4 rounded-2xl">
+            <div>
+                <p-inputotp [(ngModel)]="verificationCode" [integerOnly]="true" [length]="6" size="large"/>
+            </div>
+            <button pButton (click)="onVerify()" severity="secondary" class="w-full bg-gray-400 hover:bg-gray-500 text-white" type="button" [disabled]=""><span pButtonLabel>Verify</span></button>
+        </div>
+        
+    </div>
+</section>

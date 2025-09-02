@@ -5,35 +5,42 @@ import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
-import { ToastModule } from 'primeng/toast';
-import { MessageModule } from 'primeng/message';
 import { MessageService } from 'primeng/api';
+import { ToastrService } from 'ngx-toastr';
+import { MessageModule } from 'primeng/message';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule, InputTextModule, MessageModule, ButtonModule, ToastModule],
+  imports: [ReactiveFormsModule, InputTextModule, ButtonModule, MessageModule],
+  providers: [MessageService],
   templateUrl: './login.html',
   styleUrl: './login.scss'
 })
-export class Login {
+export class Login implements OnInit, OnDestroy{
   private readonly _AuthService = inject(AuthService);
   private readonly _FormBuilder = inject(FormBuilder);
   private readonly _Router = inject(Router);
-  private readonly _MessageService = inject(MessageService);
+  private readonly _ToastrService = inject(ToastrService);
   
   loginForm!: FormGroup;
+  emailForm!: FormGroup;
 
   errorMessage: WritableSignal<string | null> = signal(null);
   isLoading: WritableSignal<boolean> = signal(false);
   formSubmitted: WritableSignal<boolean> = signal(false);
+  forgotPassword: WritableSignal<boolean> = signal(false);
   
   loginSub!: Subscription;
 
   ngOnInit(): void {
     this.loginForm = this._FormBuilder.group({
-    email: new FormControl(null, [Validators.required, Validators.email]),
-    password: new FormControl(null, [Validators.required ])
+      email: new FormControl(null, [Validators.required, Validators.email]),
+      password: new FormControl(null, [Validators.required ])
     });
+
+    this.emailForm = this._FormBuilder.group({
+      email: new FormControl(null, [Validators.required, Validators.email])
+    })
   }
 
   ngOnDestroy(): void {
@@ -45,23 +52,46 @@ export class Login {
     if (this.loginForm.valid && !this.isLoading()) {
       this.isLoading.set(true);
       this.errorMessage.set(null);
-      this.loginSub = this._AuthService.signup(this.loginForm.value).subscribe({
+      this.loginSub = this._AuthService.login(this.loginForm.value).subscribe({
         next: (response) => {
           this.isLoading.set(false);
-          this._MessageService.add({ severity: 'success', summary: 'Success', detail: 'Form Submitted', life: 3000 });
+          console.log('here')
+          this._ToastrService.success('Login Successful', 'SADAD')
           this.formSubmitted.set(false);
-          setTimeout(() => {
-            this._Router.navigate(['/home']);
-          }, 1000);       
+          this._Router.navigate(['/home'])    
         },
         error: (err) => {
-          this.errorMessage = err.message
+          this.errorMessage.set(err.message)
           this.isLoading.set(false); 
         }
       });
     } else {
       this.loginForm.markAllAsTouched();
     }
+  }
+
+  onForgetPassword() {
+    if (!this.isLoading()) {
+      this.forgotPassword.set(true)
+      this.formSubmitted.set(false)
+    }
+  }
+
+  onSendCode() {
+    this.formSubmitted.set(true);
+    if (this.emailForm.valid && !this.isLoading()) {
+      this.isLoading.set(true);
+      this._AuthService.forgetPassword(this.emailForm.value).subscribe({
+        next: (res) => {
+          this._ToastrService.warning('A code was sent to your email', 'Password Reset')
+          this._Router.navigate(['/verify-code'])
+        }, 
+        error: (err) => {
+          this.isLoading.set(false)
+        }
+      })
+    }
+    
   }
 
   isInvalid(controlName: string) {

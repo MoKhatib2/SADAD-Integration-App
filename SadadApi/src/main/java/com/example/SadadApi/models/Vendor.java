@@ -1,5 +1,6 @@
 package com.example.SadadApi.models;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import jakarta.persistence.Entity;
@@ -18,9 +19,9 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Vendor extends BaseEntity{
     @ManyToOne
-    @JoinColumn(name = "biller_id")
+    @JoinColumn(name = "biller_id", nullable = false)
     private Biller biller;
 
     @OneToMany(mappedBy = "vendor")
-    private Set<VendorSite> vendorSites;
+    private Set<VendorSite> vendorSites = new HashSet<>();
 }

@@ -2,6 +2,7 @@ package com.example.SadadApi.models;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -82,7 +83,7 @@ public class SadadRecord {
 
     @OneToMany(mappedBy = "sadadRecord", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    private Set<SadadCostCenter> allocations;
+    private Set<SadadCostCenter> allocations = new HashSet<>();
 
     private SadadStatus status;
 

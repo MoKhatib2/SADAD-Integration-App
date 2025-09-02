@@ -11,4 +11,5 @@ public interface BankAccountService {
     GenericResponse<List<BankAccountDto>> findAll();
     GenericResponse<BankAccountDto> findById(Long id);
     GenericResponse<List<BankAccountDto>> findAllByBank(Long bankId);
+    GenericResponse<List<BankAccountDto>> findAllByBankandOrganization(Long bankId, Long organizationId);
 }

@@ -1,9 +1,10 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { inject, Injectable, OnInit, PLATFORM_ID, signal } from '@angular/core';
 import { environment } from '../environments/environment';
 import { BehaviorSubject, tap } from 'rxjs';
-import { Iuser } from '../interfaces/iuser';
+import { iuser } from '../interfaces/iuser';
 import { isPlatformBrowser } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -11,27 +12,43 @@ import { isPlatformBrowser } from '@angular/common';
 export class AuthService {
   private _HttpClient = inject(HttpClient);
   private _PLATFORM_ID = inject(PLATFORM_ID);
+  private _Router = inject(Router);
 
-  userSubject = new BehaviorSubject<Iuser | null>(null);
+  userSubject = new BehaviorSubject<iuser | null>(null);
+  email = signal('')
   token: string | null = null;
   isAuthenticated: boolean = false;
   private tokenExpirationTimer: any;
-
+  
   login(userData: any) {
-    return this._HttpClient.post(`${environment.baseUrl}/auth/sigin`, userData).pipe(
-      tap(this.handleAuthentication)
+    return this._HttpClient.post(`${environment.baseUrl}/api/auth/signin`, userData).pipe(
+      tap(this.handleAuthentication.bind(this))
     );
   }
 
   signup(userData: any){
-    return this._HttpClient.post(`${environment.baseUrl}/auth/signup`, userData).pipe(
-      tap(this.handleAuthentication)
+    return this._HttpClient.post(`${environment.baseUrl}/api/auth/signup`, userData).pipe(
+      tap(this.handleAuthentication.bind(this))
     );
   }
 
+  forgetPassword(data: any){
+    return this._HttpClient.post(`${environment.baseUrl}/api/auth/forget-password`, data).pipe(
+      tap(res => this.email.set(data.email))
+    );
+  }
+
+  verifyCode(email: string, code: string){
+    return this._HttpClient.post(`${environment.baseUrl}/api/auth/verify-code`, {email, code});
+  }
+
+  resetPassword(data: any){
+    return this._HttpClient.put(`${environment.baseUrl}/api/auth/reset-password`, data);
+  }
+
   handleAuthentication(authData: any) {
-    const user: Iuser = authData.user;
-    this.userSubject.next(user);
+    const user: iuser = authData.user;
+    this.userSubject.next(user)
     this.token = authData.token;
     const expirationDate = new Date(new Date().getTime() + 1 * 60 * 60 * 1000);
     if (isPlatformBrowser(this._PLATFORM_ID)) { 
@@ -43,9 +60,19 @@ export class AuthService {
     } 
   }
 
+  autoLogin() {
+    if (isPlatformBrowser(this._PLATFORM_ID) && localStorage.getItem('user') && localStorage.getItem('token')) {    
+      const user: iuser = JSON.parse(localStorage.getItem('user')!);
+      this.token = JSON.parse(localStorage.getItem('token')!);
+      this.userSubject.next(user);
+      this.autoLogout();
+      this.isAuthenticated = true;
+      //this._Router.navigate(['/home']);
+    }        
+  }
+
   logout() {
     this.userSubject.next(null);
-    //this.router.navigate(['/home']);
     localStorage.removeItem('user');
     localStorage.removeItem('expirationDate');
     localStorage.removeItem('token');
@@ -54,6 +81,7 @@ export class AuthService {
     }
     this.tokenExpirationTimer = null;
     this.isAuthenticated = false;
+    this._Router.navigate(['/login']);
   }
 
   autoLogout(){

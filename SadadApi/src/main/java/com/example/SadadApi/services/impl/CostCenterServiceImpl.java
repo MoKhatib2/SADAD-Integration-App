@@ -11,7 +11,6 @@ import com.example.SadadApi.dtos.CodeNameDto;
 import com.example.SadadApi.dtos.IdDto;
 import com.example.SadadApi.models.CostCenter;
 import com.example.SadadApi.repositories.CostCenterRepository;
-import com.example.SadadApi.repositories.SadadCostCenterRepository;
 import com.example.SadadApi.responses.CodeNameResponse;
 import com.example.SadadApi.responses.GenericResponse;
 import com.example.SadadApi.responses.SadadCostCenterResponse;
@@ -23,7 +22,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CostCenterServiceImpl implements CostCenterService{
     final private CostCenterRepository costCenterRepository;
-    final private SadadCostCenterRepository sadadCostCenterRepository;
 
     @Override
     public GenericResponse<CodeNameResponse> create(CodeNameDto codeNameDto) {

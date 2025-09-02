@@ -10,10 +10,10 @@ import org.springframework.web.server.ResponseStatusException;
 import com.example.SadadApi.dtos.BankAccountDto;
 import com.example.SadadApi.models.Bank;
 import com.example.SadadApi.models.BankAccount;
-import com.example.SadadApi.models.LegalEntity;
+import com.example.SadadApi.models.Organization;
 import com.example.SadadApi.repositories.BankAccountRepository;
 import com.example.SadadApi.repositories.BankRepository;
-import com.example.SadadApi.repositories.LegalEntityRepository;
+import com.example.SadadApi.repositories.OrganizationRepository;
 import com.example.SadadApi.responses.GenericResponse;
 import com.example.SadadApi.services.BankAccountService;
 
@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class BankAccountServiceImpl implements BankAccountService{
     final private BankAccountRepository bankAccountRepository;
     final private BankRepository bankRepository;
-    final private LegalEntityRepository legalEntityRepository;
+    final private OrganizationRepository organizationRepository;
 
     @Override
     public GenericResponse<BankAccountDto> create(BankAccountDto bankAccountDto) {
@@ -32,11 +32,11 @@ public class BankAccountServiceImpl implements BankAccountService{
         if (existingBankAccount.isPresent()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "There is another bank using this code");
         }
-        Bank bank = bankRepository.findById(bankAccountDto.BankId())
+        Bank bank = bankRepository.findById(bankAccountDto.bankId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bank not found")); 
 
-        LegalEntity legalEntity = legalEntityRepository.findById(bankAccountDto.legalEntityId())
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Legal Entity not found")); 
+        Organization organization = organizationRepository.findById(bankAccountDto.organizationId())
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Organization not found")); 
 
         existingBankAccount = bankAccountRepository.findByAccountNumber(bankAccountDto.accountNumber());
         if (existingBankAccount.isPresent() && existingBankAccount.get().getBank().getId().equals(bank.getId())) {
@@ -48,7 +48,7 @@ public class BankAccountServiceImpl implements BankAccountService{
         bankAccount.setIban(bankAccountDto.iban());
         bankAccount.setAccountName(bankAccountDto.accountName());
         bankAccount.setBank(bank);
-        bankAccount.setLegalEntity(legalEntity);
+        bankAccount.setOrganization(organization);
         
         BankAccount savedBankAccount = bankAccountRepository.save(bankAccount);
 
@@ -58,7 +58,7 @@ public class BankAccountServiceImpl implements BankAccountService{
             savedBankAccount.getIban(),
             savedBankAccount.getAccountName(), 
             bank.getId(),
-            legalEntity.getId()
+            organization.getId()
             );
         return new GenericResponse<>("Bank Account created successfully", response);
     }
@@ -109,7 +109,7 @@ public class BankAccountServiceImpl implements BankAccountService{
                 updatedBankAccount.getIban(),
                 updatedBankAccount.getAccountName(),
                 updatedBankAccount.getBank().getId(),
-                updatedBankAccount.getLegalEntity().getId()
+                updatedBankAccount.getOrganization().getId()
         );
         return new GenericResponse<>("Bank account updated successfully", response);
     }
@@ -123,7 +123,7 @@ public class BankAccountServiceImpl implements BankAccountService{
                         acc.getIban(),
                         acc.getAccountName(),
                         acc.getBank().getId(),
-                        acc.getLegalEntity().getId()
+                        acc.getOrganization().getId()
                 ))
                 .toList();
 
@@ -133,7 +133,7 @@ public class BankAccountServiceImpl implements BankAccountService{
     @Override
     public GenericResponse<BankAccountDto> findById(Long id) {
         BankAccount bankAccount = bankAccountRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Bank account not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bank account not found"));
 
         BankAccountDto response = new BankAccountDto(
                 bankAccount.getId(),
@@ -141,7 +141,7 @@ public class BankAccountServiceImpl implements BankAccountService{
                 bankAccount.getIban(),
                 bankAccount.getAccountName(),
                 bankAccount.getBank().getId(),
-                bankAccount.getLegalEntity().getId()
+                bankAccount.getOrganization().getId()
         );
 
         return new GenericResponse<>("Bank account retrieved successfully", response);
@@ -150,7 +150,7 @@ public class BankAccountServiceImpl implements BankAccountService{
     @Override
     public GenericResponse<List<BankAccountDto>> findAllByBank(Long bankId) {
         Bank bank = bankRepository.findById(bankId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Bank not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bank not found"));
 
         List<BankAccountDto> accounts = bankAccountRepository.findByBankId(bankId).stream()
                 .map(acc -> new BankAccountDto(
@@ -159,11 +159,35 @@ public class BankAccountServiceImpl implements BankAccountService{
                         acc.getIban(),
                         acc.getAccountName(),
                         bank.getId(),
-                        acc.getLegalEntity().getId()
+                        acc.getOrganization().getId()
                 ))
                 .toList();
 
         return new GenericResponse<>("Bank accounts for bank retrieved successfully", accounts);
     }
+
+    @Override
+    public GenericResponse<List<BankAccountDto>> findAllByBankandOrganization(Long bankId, Long organizationId) {
+        Bank bank = bankRepository.findById(bankId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bank not found"));
+
+        Organization organization = organizationRepository.findById(organizationId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Organization not found"));
+
+        List<BankAccountDto> accounts = bankAccountRepository.findByBankIdAndOrganizationId(bankId, organizationId).stream()
+                .map(acc -> new BankAccountDto(
+                        acc.getId(),
+                        acc.getAccountNumber(),
+                        acc.getIban(),
+                        acc.getAccountName(),
+                        bank.getId(),
+                        organization.getId()
+                ))
+                .toList();
+                 
+        return new GenericResponse<>("Bank accounts for bank retrieved successfully", accounts);
+    }
+
+    
 
 }

@@ -20,6 +20,6 @@ public interface BankAccountRepository extends JpaRepository<BankAccount, Long>{
 
     Optional<BankAccount> findByIban(String iban);
 
-    @Query("SELECT ba FROM BankAccount ba WHERE ba.bank.id =:bankId AND ba.legalEntity.id =:legalEntityId")
-    List<BankAccount> findByBankIdAndLegalEntityId(@Param("bankId") Long bankId, @Param("legalEntityId") Long legalEntityId);
+    @Query("SELECT ba FROM BankAccount ba WHERE ba.bank.id =:bankId AND ba.organization.id =:organizationId")
+    List<BankAccount> findByBankIdAndOrganizationId(@Param("bankId") Long bankId, @Param("organizationId") Long organizationId);
 }

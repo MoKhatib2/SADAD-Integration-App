@@ -18,7 +18,7 @@ public record SadadRecordDto(
     @NotNull Long vendorId,
     @NotNull Long vendorSiteId,
     @NotNull Long invoiceTypeId,
-    @NotNull String invoiceNumebr,
+    @NotNull String invoiceNumber,
     @NotNull String subscriptionAccountNumber,
     @NotNull @DecimalMin("0.00") BigDecimal amount,
     @NotNull Long expenseAccountId,

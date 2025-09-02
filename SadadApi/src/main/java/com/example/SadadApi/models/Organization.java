@@ -1,16 +1,17 @@
 package com.example.SadadApi.models;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.JoinTable;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
@@ -26,6 +27,7 @@ public class Organization extends BaseEntity{
     )
     private Set<Bank> banks;
 
-    @OneToMany(mappedBy = "organization")
-    private Set<LegalEntity> legalEntities;
+    @OneToMany(mappedBy= "organization")
+    private Set<BankAccount> bankAccounts = new HashSet<>();
+
 }

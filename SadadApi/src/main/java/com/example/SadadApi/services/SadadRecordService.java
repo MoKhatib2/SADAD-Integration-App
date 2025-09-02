@@ -15,6 +15,7 @@ public interface SadadRecordService {
     GenericResponse<SadadRecordResponse> confirmRecord(Long id);
     GenericResponse<SadadRecordResponse> cancelRecord(Long id);
     GenericResponse<SadadRecordResponse> releaseRecord(Long id);
+    GenericResponse<SadadRecordResponse> retryInvoiceRecord(Long id);
     GenericResponse<List<SadadRecordResponse>> findAll();
     GenericResponse<SadadRecordResponse> findById(Long id);
     GenericResponse<List<SadadRecordResponse>> findByStatus(SadadRecordStatusDto SadadRecordStatusDto);

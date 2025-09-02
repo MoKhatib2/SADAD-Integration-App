@@ -32,6 +32,8 @@
             "styles": [
               "node_modules/primeicons/primeicons.css",
               "node_modules/primeflex/primeflex.css",
+              "node_modules/ngx-toastr/toastr.css",
+               "node_modules/ngx-spinner/animations/ball-running-dots.css",
               "src/styles.scss"
             ],
             "server": "src/main.server.ts",

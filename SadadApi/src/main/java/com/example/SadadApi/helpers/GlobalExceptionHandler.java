@@ -1,19 +1,32 @@
 package com.example.SadadApi.helpers;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
+import org.springframework.security.core.AuthenticationException;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import com.example.SadadApi.responses.MessageResponse;
+
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler({ AuthenticationException.class })
+    @ResponseBody
+    public ResponseEntity<MessageResponse> handleAuthenticationException(Exception ex) {
+        MessageResponse error = new MessageResponse("fail", "UNAUTHORIZED");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -28,27 +41,27 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ResponseStatusException.class)
-    public ResponseEntity<Map<String, String>> handleResponseStatusException(ResponseStatusException ex) {
-        Map<String, String> error = new HashMap<>();
-        error.put("statusMsg", "fail");
-        error.put("message", ex.getReason());
+    public ResponseEntity<MessageResponse> handleResponseStatusException(ResponseStatusException ex) {
+        MessageResponse error = new MessageResponse("fail", ex.getReason());
         return ResponseEntity.status(ex.getStatusCode()).body(error);
     }
 
     @ExceptionHandler(JWTVerificationException.class)
-    public ResponseEntity<Map<String, String>> handleJWTVerificationException(JWTVerificationException ex) {
-        Map<String, String> error = new HashMap<>();
-        error.put("statusMsg", "fail");
-        error.put("message", "invalid token. Please login to get access");
+    public ResponseEntity<MessageResponse> handleJWTVerificationException(JWTVerificationException ex) {
+        MessageResponse error = new MessageResponse("fail", "UNAUTHORIZED");
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
 
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<MessageResponse> handleAnyException(NoResourceFoundException ex) {
+        MessageResponse error = new MessageResponse("fail", ex.getMessage());
+        return ResponseEntity.status(ex.getStatusCode()).body(error);
+    }
+ 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, String>> handleAnyException(Exception ex) {
-        Map<String, String> error = new HashMap<>();
-        error.put("statusMsg", "fail");
-        error.put("message", ex.getMessage());
-        return ResponseEntity.badRequest().body(error);
+    public ResponseEntity<MessageResponse> handleAnyException(Exception ex) {
+        MessageResponse error = new MessageResponse("fail", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
 }
