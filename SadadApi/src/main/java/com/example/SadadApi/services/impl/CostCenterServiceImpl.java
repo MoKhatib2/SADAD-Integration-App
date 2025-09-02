@@ -3,6 +3,8 @@ package com.example.SadadApi.services.impl;
 import java.util.List;
 import java.util.Optional;
 
+import com.example.SadadApi.models.SadadRecord;
+import com.example.SadadApi.repositories.SadadRecordRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -22,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CostCenterServiceImpl implements CostCenterService{
     final private CostCenterRepository costCenterRepository;
+    final private SadadRecordRepository sadadRecordRepository;
 
     @Override
     public GenericResponse<CodeNameResponse> create(CodeNameDto codeNameDto) {
@@ -87,11 +90,16 @@ public class CostCenterServiceImpl implements CostCenterService{
     }
 
     @Override
-    public GenericResponse<List<SadadCostCenterResponse>> findAllBySadadRecord(IdDto iDto) {
-        // Long sadadRecordId = iDto.id();
-        // List<SadadCostCenter> sadadCostCenters = sadadCostCenterRepository.findAllBySadadRecordId(sadadRecordId).stream()
-        //     .map(s -> new Sad)
-        return null;
+    public GenericResponse<List<SadadCostCenterResponse>> findAllBySadadRecord(Long id) {
+        SadadRecord sadadRecord = sadadRecordRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sadad record not found"));
+
+        List<SadadCostCenterResponse> costCenters = costCenterRepository.findAllBySadadRecordId(id).stream()
+                .map(b -> new SadadCostCenterResponse(
+                        b.getId(), b.getCode(), b.getDescription(), b.getAllocations().stream().findFirst().get().getPercentage()))
+                .toList();
+
+        return new GenericResponse<>("Cost Centers retrieved successfully", costCenters);
     }
 
 }

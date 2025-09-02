@@ -6,11 +6,13 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.stereotype.Repository;
 
 import com.example.SadadApi.models.BankAccount;
 
 @Repository
+@RepositoryRestResource(exported = false)
 public interface BankAccountRepository extends JpaRepository<BankAccount, Long>{
 
     Optional<BankAccount> findByAccountNumber(String accountNumber);

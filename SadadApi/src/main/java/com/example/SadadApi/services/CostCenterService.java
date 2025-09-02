@@ -7,5 +7,5 @@ import com.example.SadadApi.responses.GenericResponse;
 import com.example.SadadApi.responses.SadadCostCenterResponse;
 
 public interface CostCenterService extends CrudService{
-    GenericResponse<List<SadadCostCenterResponse>> findAllBySadadRecord(IdDto SadadRecordId);
+    GenericResponse<List<SadadCostCenterResponse>> findAllBySadadRecord(Long id);
 }

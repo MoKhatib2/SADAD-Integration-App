@@ -1,15 +1,23 @@
 package com.example.SadadApi.repositories;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.stereotype.Repository;
 
 import com.example.SadadApi.models.CostCenter;
 
 @Repository
+@RepositoryRestResource(exported = false)
 public interface CostCenterRepository extends JpaRepository<CostCenter, Long>{
 
     Optional<CostCenter> findByCode(String code);
+
+    @Query("SELECT cc FROM CostCenter cc JOIN FETCH cc.allocations sc where sc.sadadRecord.id =:id")
+    List<CostCenter> findAllBySadadRecordId(@Param("id") Long sadadRecordId);
     
 }

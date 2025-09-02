@@ -48,9 +48,9 @@ public class CostCenterController {
         return ResponseEntity.ok(costCenterService.findById(id));
     }
 
-    @GetMapping("/getBySadadRecordId")
-    public ResponseEntity<?> getBySadadRecordId(@RequestBody @Valid IdDto dto) {
-        return ResponseEntity.ok(costCenterService.findAllBySadadRecord(dto));
+    @GetMapping("/{id}/sadad-records")
+    public ResponseEntity<?> getBySadadRecordId(@PathVariable Long id) {
+        return ResponseEntity.ok(costCenterService.findAllBySadadRecord(id));
     }
 
 }

@@ -41,6 +41,7 @@ public class AuthConfig {
                         // Public endpoints
                         .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/auth/**").permitAll()
+                        .requestMatchers(AUTH_WHITELIST).permitAll()
                         .anyRequest()
                         .authenticated()
                 )
@@ -50,6 +51,13 @@ public class AuthConfig {
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
+
+    private static final String[] AUTH_WHITELIST = {
+            "/v3/api-docs/**",
+            "/v3/api-docs.yaml",
+            "/swagger-ui.html",
+            "/swagger-ui/**",
+    };
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
