@@ -27,7 +27,7 @@
                 </div>
                  <div class="flex flex-col gap-1 lg:w-1/6 md:w-1/4 mb-2">
                     <h4 class="text-2xl mb-2" >Remitter Bank</h4>
-                    <p-select formControlName="remitterBankId" [options]="remitterBanks()" (onChange)="onSelectChange('remitterBankId', $event.value)" [invalid]="isInvalid('remitterBankId')" optionLabel="code" optionValue="id" placeholder="Select Code" class="w-full md:w-56" />
+                    <p-select formControlName="remitterBankId" [options]="remitterBanks()" (onChange)="onSelectChange('remitterBankId', $event.value)" [invalid]="isInvalid('remitterBankId')" optionLabel="name" optionValue="id" placeholder="Select Code" class="w-full md:w-56" />
                     <!-- <p-iftalabel class="w-full">
                         <input pInputText variant="filled" class="w-full"  id="bankName" autocomplete="off" readonly/>
                         <label class="w-full" for="bankName">Name</label>
@@ -148,10 +148,10 @@
                     <p-button (onClick)="addCostCenter()" icon="pi pi-plus" label="Add" [rounded]="true" outlined severity="info" />
                 </div>
                 <div class="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-1 gap-4 p-4">
-                    @for(costCenterControl of costCentersFormArray.controls; track $index; let i = $index) {
+                    @for(costCenterControl of costCentersFormArray.controls; let i = $index; track trackByFn($index, costCenterControl);) {
                         <div class="relative flex flex-col gap-1 lg:w-1/6 md:w-1/4 pt-6" [formGroupName]="i">
                             <p-button (onClick)="removeCostCenter(i)" class="absolute top-0 right-0" icon="pi pi-times" [rounded]="true" [text]="true" severity="danger" />
-                            <p-select formControlName="costCenterId" [options]="costCenters()" [invalid]="isInvalid('costCenterId')" optionLabel="code" optionValue="id" placeholder="Select Code" class="w-full md:w-56" />
+                            <p-select formControlName="costCenterId" [options]="getCostCenterOptions(i)" [invalid]="isInvalid('costCenterId')" optionLabel="code" optionValue="id" placeholder="Select Code" class="w-full md:w-56" />
                             <p-iftalabel class="w-full">
                                 <input pInputText [value]="getFilledName('costCenterId', i)" variant="filled" class="w-full"  id="costCenterDesc" autocomplete="off" readonly/>
                                 <label class="w-full" for="costCenterDesc">Description</label>

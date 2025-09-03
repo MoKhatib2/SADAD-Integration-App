@@ -16,7 +16,10 @@ export interface irecord {
   location: CodeName;
   costCenters: CostCenter[];
   status: string;
+  createdBy: string;
+  createdAt: Date;
 }
+
 
 interface CostCenter {
   id: number;

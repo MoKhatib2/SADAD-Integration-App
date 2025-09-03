@@ -225,6 +225,10 @@ export class UpdateRecord implements OnInit, OnDestroy{
     }
   }
 
+  trackByFn(index: number, item: AbstractControl) {
+    return item; 
+  }
+
   onSelectChange(controlName: string, value: any) {
     switch(controlName) {
       case 'organizationId':
@@ -328,6 +332,17 @@ export class UpdateRecord implements OnInit, OnDestroy{
   isInvalidCostCenter(index: number, controlName: string) {
     const control = this.costCentersFormArray.at(index).get(controlName);
     return control?.invalid && (control.touched || this.formSubmitted());
+  }
+
+  getCostCenterOptions(index: number): icodename[] {
+    const map = new Map();
+    for(let i = 0; i < this.costCentersFormArray.length; i++) {
+      if (i != index) {
+        let value = this.costCentersFormArray.get(i + '')?.value.costCenterId ?? -1;
+        map.set(value, 1);
+      }
+    }
+    return this.costCenters().filter(cc => !map.has(cc.id));
   }
 
   get costCentersFormArray(): FormArray {

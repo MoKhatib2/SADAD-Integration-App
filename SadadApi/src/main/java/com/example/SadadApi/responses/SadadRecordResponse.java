@@ -1,6 +1,7 @@
 package com.example.SadadApi.responses;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -21,7 +22,9 @@ public record SadadRecordResponse(
     CodeNameResponse business,
     CodeNameResponse location,
     List<CostCenterResponse> costCenters,
-    String status
+    String status,
+    String createdBy,
+    LocalDateTime createdAt
 ) {
 
 }

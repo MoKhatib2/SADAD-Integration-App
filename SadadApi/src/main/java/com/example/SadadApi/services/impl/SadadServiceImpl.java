@@ -2,10 +2,10 @@ package com.example.SadadApi.services.impl;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -54,6 +54,7 @@ import com.example.SadadApi.services.KyribaService;
 import com.example.SadadApi.services.SadadRecordService;
 
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -143,7 +144,7 @@ public class SadadServiceImpl implements SadadRecordService{
     
         SadadRecord saved = sadadRecordRepository.save(sadadRecord);
     
-        SadadRecordResponse response = createResponse(saved);
+        SadadRecordResponse response = toDto(saved);
     
         return new GenericResponse<>("Record created successfully", response);
     }
@@ -222,7 +223,7 @@ public class SadadServiceImpl implements SadadRecordService{
         createAllocations(dto, sadadRecord, true);
 
         SadadRecord updated = sadadRecordRepository.save(sadadRecord);
-        SadadRecordResponse response = createResponse(updated);
+        SadadRecordResponse response = toDto(updated);
         return new GenericResponse<>("Record updated successfully", response);
     }
 
@@ -268,7 +269,7 @@ public class SadadServiceImpl implements SadadRecordService{
         duplicated.setAllocations(allocations);
         duplicated = sadadRecordRepository.save(duplicated);
 
-        SadadRecordResponse response = createResponse(duplicated);
+        SadadRecordResponse response = toDto(duplicated);
 
         return new GenericResponse<>("Record duplicated successfully", response);
     }
@@ -291,7 +292,7 @@ public class SadadServiceImpl implements SadadRecordService{
 
         SadadRecord saved = sadadRecordRepository.save(sadadRecord);
 
-        SadadRecordResponse response = createResponse(saved);
+        SadadRecordResponse response = toDto(saved);
 
         return new GenericResponse<>("Record confirmed successfully", response);
     }
@@ -314,7 +315,7 @@ public class SadadServiceImpl implements SadadRecordService{
 
         SadadRecord saved = sadadRecordRepository.save(sadadRecord);
 
-        SadadRecordResponse response = createResponse(saved);
+        SadadRecordResponse response = toDto(saved);
 
         return new GenericResponse<>("Record canceled successfully", response);
     }
@@ -350,7 +351,7 @@ public class SadadServiceImpl implements SadadRecordService{
     
         SadadRecord saved = sadadRecordRepository.save(sadadRecord);
 
-        SadadRecordResponse response = createResponse(saved);
+        SadadRecordResponse response = toDto(saved);
         return new GenericResponse<>("Record released successfully", response);
     }
 
@@ -379,7 +380,7 @@ public class SadadServiceImpl implements SadadRecordService{
          
         SadadRecord saved = sadadRecordRepository.save(sadadRecord);
 
-        SadadRecordResponse response = createResponse(saved);
+        SadadRecordResponse response = toDto(saved);
         return new GenericResponse<>("Invoice created successfully", response);
     }
 
@@ -470,39 +471,6 @@ public class SadadServiceImpl implements SadadRecordService{
        
    }
 
-   private SadadRecordResponse createResponse(SadadRecord sadadRecord) {
-        List<CostCenterResponse> costCentersResponse = new ArrayList<>();
-        for (SadadCostCenter sadadCostCenter : sadadRecord.getAllocations()) {
-            costCentersResponse.add(
-                new CostCenterResponse(
-                        sadadCostCenter.getCostCenter().getId(),
-                        sadadCostCenter.getCostCenter().getCode(), 
-                        sadadCostCenter.getCostCenter().getDescription(), 
-                        sadadCostCenter.getPercentage()
-                )
-             );
-        }
-        return new SadadRecordResponse(
-                sadadRecord.getId(),
-                new CodeNameResponse(sadadRecord.getOrganization().getId(), sadadRecord.getOrganization().getCode(), sadadRecord.getOrganization().getName()),
-                new CodeNameResponse(sadadRecord.getLegalEntity().getId(), sadadRecord.getLegalEntity().getCode(), sadadRecord.getLegalEntity().getName()),
-                new CodeNameResponse(sadadRecord.getRemitterBank().getId(), sadadRecord.getRemitterBank().getCode(), sadadRecord.getRemitterBank().getName()),
-                new BankAccountResponse(sadadRecord.getBankAccount().getId(), sadadRecord.getBankAccount().getAccountNumber(), sadadRecord.getBankAccount().getAccountName()),
-                new CodeNameResponse(sadadRecord.getBiller().getId(), sadadRecord.getBiller().getCode(), sadadRecord.getBiller().getName()),
-                new CodeNameResponse(sadadRecord.getVendor().getId(), sadadRecord.getVendor().getCode(), sadadRecord.getVendor().getName()),
-                new CodeNameResponse(sadadRecord.getVendorSite().getId(), sadadRecord.getVendorSite().getCode(), sadadRecord.getVendorSite().getName()),
-                new CodeNameResponse(sadadRecord.getInvoiceType().getId(), sadadRecord.getInvoiceType().getName(), sadadRecord.getInvoiceType().getName()),
-                sadadRecord.getInvoiceNumber(),
-                sadadRecord.getSubscriptionAccountNumber(),
-                sadadRecord.getAmount(),
-                new CodeNameResponse(sadadRecord.getExpenseAccount().getId(), sadadRecord.getExpenseAccount().getCode(), sadadRecord.getExpenseAccount().getName()),
-                new CodeNameResponse(sadadRecord.getBusiness().getId(), sadadRecord.getBusiness().getCode(), sadadRecord.getBusiness().getName()),
-                new CodeNameResponse(sadadRecord.getLocation().getId(), sadadRecord.getLocation().getCode(), sadadRecord.getLocation().getName()),
-                costCentersResponse,
-                sadadRecord.getStatus().toString()
-        );
-   }
-
    private SadadRecordResponse toDto(SadadRecord sadadRecord) {
         return new SadadRecordResponse(
             sadadRecord.getId(),
@@ -529,7 +497,9 @@ public class SadadServiceImpl implements SadadRecordService{
                         sc.getPercentage()
                 ))
                 .toList(),
-            sadadRecord.getStatus() != null ? sadadRecord.getStatus().name() : null
+            sadadRecord.getStatus() != null ? sadadRecord.getStatus().name() : null,
+            sadadRecord.getCreatedBy(),
+            sadadRecord.getCreatedAt()
         );
     }
     private CodeNameResponse toCodeNameResponse(BaseEntity entity) {

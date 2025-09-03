@@ -48,6 +48,12 @@
                     <th></th>
                     <th></th>
                     <th>Status</th>
+                    <th pSortableColumn="createdAt" style="width:20%">
+                        <div class="flex items-center gap-2">
+                            Created At
+                            <p-sortIcon field="createdAt" />
+                        </div>
+                    </th>
                     <th>Oraganization</th>
                     <th>Legal Entity</th>
                     <th>Remitter Bank</th>   
@@ -66,7 +72,7 @@
                 <tr>
                     <th></th>
                     <th></th>
-                    <th>
+                    <th class="min-w-3xs">
                         <p-columnFilter field="status" matchMode="equals" [showMenu]="false">
                             <ng-template #filter let-value let-filter="filterCallback">
                                 <p-select [options]="statuses()" (onChange)="filter($event.value)" placeholder="Select One" [showClear]="true" style="min-width: 12rem">
@@ -77,46 +83,49 @@
                             </ng-template>
                         </p-columnFilter>
                     </th>
-                    <th>
+                    <th class="min-w-2xs">
+                        <p-columnFilter type="date" field="createdAt" placeholder="Select date" ariaLabel="Filter Created At" filterOn="input"></p-columnFilter>
+                    </th>
+                    <th class="min-w-2xs">
                         <p-columnFilter type="text" field="organization.name" placeholder="Type to search" ariaLabel="Filter Oraganization" filterOn="input"></p-columnFilter>
                     </th>
-                    <th>
+                    <th class="min-w-2xs">
                         <p-columnFilter type="text" field="legalEntity.name" placeholder="Enter key to search" ariaLabel="Filter Legal Entity"></p-columnFilter>
                     </th>
-                    <th>
+                    <th class="min-w-2xs">
                         <p-columnFilter type="text" field="remitterBank.name" placeholder="Enter key to search" ariaLabel="Filter Bank"></p-columnFilter>
                     </th>
-                    <th>
+                    <th class="min-w-2xs">
                         <p-columnFilter type="text" field="remitterBankAccount.accountNumber" placeholder="Enter key to search" ariaLabel="Filter Bank Account Number"></p-columnFilter>
                     </th>
-                    <th>
+                    <th class="min-w-2xs">
                         <p-columnFilter type="text" field="biller.name" placeholder="Enter key to search" ariaLabel="Filter Biller"></p-columnFilter>
                     </th>
-                    <th>
+                    <th class="min-w-2xs">
                         <p-columnFilter type="text" field="vendor.name" placeholder="Enter key to search" ariaLabel="Filter Vendor"></p-columnFilter>
                     </th>
-                    <th>
+                    <th class="min-w-2xs">
                         <p-columnFilter type="text" field="vendorSite.name" placeholder="Enter key to search" ariaLabel="Filter Vendor Site"></p-columnFilter>
                     </th>
-                    <th>
+                    <th class="min-w-2xs">
                         <p-columnFilter type="text" field="invoiceType.name" placeholder="Enter key to search" ariaLabel="Filter Invoice Type"></p-columnFilter>
                     </th>
-                    <th>
+                    <th class="min-w-2xs">
                         <p-columnFilter type="text" field="invoiceNumber" placeholder="Enter key to search" ariaLabel="Filter Invoice Number"></p-columnFilter>
                     </th>
-                    <th>
+                    <th class="min-w-2xs">
                         <p-columnFilter type="text" field="subscriptionAccountNumber" placeholder="Enter key to search" ariaLabel="Filter Subscription Account Number"></p-columnFilter>
                     </th>
-                    <th>
+                    <th class="min-w-2xs">
                         <p-columnFilter type="numeric" field="amount" currency="EGP" placeholder="Enter key to search" ariaLabel="Filter Amount"></p-columnFilter>
                     </th>
-                    <th>
+                    <th class="min-w-2xs">
                         <p-columnFilter type="text" field="expenseAccount.name" placeholder="Enter key to search" ariaLabel="Filter Expense Account"></p-columnFilter>
                     </th>
-                    <th>
+                    <th class="min-w-2xs">
                         <p-columnFilter type="text" field="business.name" placeholder="Enter key to search" ariaLabel="Filter Business"></p-columnFilter>
                     </th>
-                    <th>
+                    <th class="min-w-2xs">
                         <p-columnFilter type="text" field="location.name" placeholder="Enter key to search" ariaLabel="Filter Location"></p-columnFilter>
                     </th>                
                 </tr>
@@ -127,12 +136,15 @@
                         <p-tableRadioButton [value]="record" />
                     </td>
                     <td>
-                        @if(record.status.toUpperCase() === 'SAVED') {
+                        @if(record.status.toUpperCase() === 'SAVED' && currUser()?.role?.toUpperCase() != 'RELEASE') {
                             <p-button severity="info" icon="pi pi-pencil" class="mr-2" [outlined]="true" (click)="editProduct(record.id)" />
                         }
                     </td>
                     <td>
                         <p-tag [value]="record.status.split('_').join(' ')" [severity]="getSeverity(record.status)" />
+                    </td>
+                     <td>
+                        {{ record.createdAt | date: 'mediumDate'}}
                     </td>
                     <td>
                         {{ record.organization.name }}

@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable, ObservedValueOf } from 'rxjs';
+import { map, Observable, ObservedValueOf, tap } from 'rxjs';
 import { irecord } from '../interfaces/irecord';
 import { environment } from '../environments/environment';
 
@@ -11,7 +11,16 @@ export class SadadRecordService {
     private _HttpClient = inject(HttpClient);
 
     getAllRecords(): Observable<any> {
-      return this._HttpClient.get(`${environment.baseUrl}/api/sadad-records`)
+      return this._HttpClient.get<any>(`${environment.baseUrl}/api/sadad-records`).pipe(
+        map((res) => {
+          const formatted = res.data.map((r: any) => ({
+                ...r,
+                createdAt: new Date(r.createdAt) 
+          }));
+          res.data = formatted;
+          return res;
+        })
+      )
     }
 
     getRecordById(id: number): Observable<any> {
