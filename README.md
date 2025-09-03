@@ -31,11 +31,16 @@ Use this command to build and run the application using docker (note: make sure 
 `docker compose up --build`
 
 This will:
+
 Build the Spring Boot backend image
+
 Build the Angular frontend image
+
 Start Oracle XE database with required ports exposed
 
 ### 4. Seed the database
 Connect to the database on localhost:1521 using your database viewer software 
+
 Use the sample-data.sql to seed the database
+
 
